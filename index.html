@@ -8,8 +8,8 @@
         <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" 
         onload="renderMathInElement(document.body);"></script>
-        
         <link rel="stylesheet" href="style.css">
+        
 
         <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
         <style>
@@ -25,6 +25,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-hlsl.min.js"></script>
+        
     </head>
 <body style="background-color: #000000 ">
 <div class="article">
@@ -306,32 +308,333 @@ $$\begin{aligned}
 &\text{So we are going to project many things in shaders, so we could make really nice graph in the future.}\\
 &\\[5ex]
 
-&\text{What we now know about shaders is that they work as computers, but you also know that wihtin a shader there are}\\
-&\text{also hundreds of computers, that run in parallel which only mean that current-electricity runs through it}\\
-&\text{and makes all the computers inside the shader to run at the same time all the single computers running at the same}\\
+&\text{What we now know about shaders is that they work as computers, but you also know that within a shader there are}\\
+&\text{also hundreds of computers, them which run in parallel, which only mean that current-electricity runs through it}\\
+&\text{making all the computers inside the shader to run at the same time, all the single computers running at the same}\\
 &\text{time, every single computer executed at the same time, and we can make these high number of computers to work }\\
-&\text{how we wanted, and how we can do that is the key point here, we got to understand them before hand, we got to}\\
+&\text{how we wanted, and how we can do that is the key point here, we got to understand them before hand; we got to}\\
 &\text{learn how to make use of them so we can make use of them.}\\
-&\text{The question here is how we can make thousands of mini computers inside the shader to work how we want}\\
+&\text{The question here is how we can make thousands of mini computers inside the shader to work how we want,}\\
 &\text{which means output what we want them to output.}\\
-&\text{}\\
-&\text{}\\
-&\text{}\\
-
 &\text{}\\
 \end{aligned}$$
         
 
-
 </div>
 
-<h2>C++</h2>
-<pre><code class="language-cpp">#include &lt;iostream&gt;
 
-int main() {
-std::cout << "Hello from C++!" << std::endl;
-return 0;
+<hr>
+<h1>Shader Snippet</h1>
+<hr>
+
+<pre><code class="language-hlsl">
+
+        CGPROGRAM
+        #pragma vertex vert alpha
+        #pragma fragment frag alpha
+
+        #include "UnityCG.cginc"
+
+        struct VertexInfo
+        {
+            float2 uv : TEXCOORD0;
+            float4 vertex : POSITION;
+        };
+
+        struct PixelData
+        {
+            float2 uv : TEXCOORD0;
+            float4 vertex : SV_POSITION;
+        };
+
+        sampler2D _MainTex;
+        float4 _MainTex_ST;
+        int _SetScreen ;
+        float _StepTime; // This receives the value from C#
+
+
+        PixelData vert (VertexInfo v)
+        {
+            PixelData o;
+            o.vertex = UnityObjectToClipPos(v.vertex);
+            o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+            return o;
+        }
+
+
+        fixed4 frag (PixelData i) : SV_Target
+        {
+            
+            // THIS CODE MEANS
+            // HOW TO RUN THE PIXELS OF THE SCREEN.
+            
+            float2 uv =  i.uv ;
+            
+            fixed4 colorWhite = float4(1,1,1,1); // Color white.
+            fixed4 colorBlack = float4(0,0,0,1); // Color white.
+            
+
+            col = fixed4(uv.x, uv.y , 0.0, 1.0);
+
+            return col;
+
+        }
+
+        ENDCG
+
+</code></pre>
+
+
+
+<div style = "font-size: 21px">
+
+    $$\begin{aligned}
+
+    &\text{What we we need to do now first of all is to explain how to make use of this pixel computers.}\\
+    &\text{to do such thing we got to create and environment where we can identify where the computing can happen.}\\
+    &\text{Lets explain all this stages.}\\
+    
+    \end{aligned}$$
+
+    
+    <pre><code class="language-hlsl">
+            CGPROGRAM
+            #pragma vertex vert alpha
+            #pragma fragment frag alpha
+            
+            #include "UnityCG.cginc"
+            
+    </code></pre>
+
+    $$\begin{aligned}
+
+    &\text{for each pixel and vertex. depending to which type of geometry you are writing them for}\\
+    &\bullet \text{\textbf{\large {the "CGPROGRAM"}}, headline tag define the start of the program for the shader, which then is going to run }\\
+    &\text{on your GPU, imagine as if you were running your program in your console, but instead of running it in your }\\
+    &\text{you run it on the GPU.}\\
+    &\bullet\text{\textbf{\large {\#pragma}} vertex vert alpha and \#pragma fragment frag alpha, are flags that allow the program to run }\\
+    &\text{specificly on a section of the GPU, and that it should provide the rest of the run program with the }\\
+    &\text{functions for the vertex and fragment shader, so it verifies when the function outputs. }\\
+
+    &\bullet\text{\textbf{\large {\#include "UnityCG.cginc"}}, is a library that would allow you to make use of integrated functions and  }\\
+    &\text{methods build upon unity, that we are going to use in the future to make uses of the engine which is UNITY, }\\
+    &\text{to create layers of abstraction between the different qualities of an already created environment.  }\\
+
+    \end{aligned}$$
+    
+    
+</div>
+
+
+<div style = "font-size: 21px">
+    
+    <pre><code class="language-hlsl">
+    
+        struct VertexInfo
+        {
+            float2 uv : TEXCOORD0;
+            float4 vertex : POSITION;
+        };
+
+        struct PixelData
+        {
+            float2 uv : TEXCOORD0;
+            float4 vertex : SV_POSITION;
+        };
+    </code></pre>
+
+    $$\begin{aligned}
+
+    &\bullet\text{\textbf{\large {struct VertexInfo and struct PixelData}} , the next lines are going to allow us to directly specify on the chip }\\
+    &\text{which information we need to use and which is going to be the name that we are going to use to make use of them.}\\
+    &\bullet\text{\textbf{\large {TEXCOORD0}}, litteraly specify a section of the Chip, in the gpu, that is going to be used as minimicrocomputers}\\
+    &\text{this is basically a section that runs the simulated pixels in the chip, so we can evaluate them. and operate them by}\\
+    &\text{launching a set instrution of instructions over them.}\\
+
+    &\bullet\text{\textbf{\large {POSITION}} and \textbf{\large {SV\_POSITION}}, is the same as the previous TEXCOORD0, but instead for vertexes, so it usually tents to }\\
+    
+    &\text{be a small number of vertexes, but with new chips and new optimizations this number has also increase, we got to keep in }\\
+    &\text{mind that a section of our TEXCOORD0 is going to run on specifily sections of the vertexes which are usually triangles.}\\
+    &\text{keep in mind that the TEXCOORD0 information map to specific triangles. made out of the vertexes}\\
+    &\text{the reason why there are two different POSITION and SV\_POSITION, is cuz one is before translating them in the space}\\
+    &\text{ and the second one is after the vertexes were translated.}\\
+    &\text{}\\
+    
+    \end{aligned}$$
+
+
+</div>
+    
+
+<div style = "font-size: 21px">
+    
+        <pre><code class="language-hlsl">
+        
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            int _SetScreen ;
+            float _StepTime; //
+
+        </code></pre>
+        <!-- &\bullet\text{POSITION and SV\_POSITION, is the same as the previous TEXCOORD0, but instead for vertexes, so it usually tents to be a  }\\ -->
+    
+        $$\begin{aligned}
+        
+        &\bullet\text{\textbf{\large {sampler2D}} \_MainTex, there are going to be similar  data structures, like this one but instead of thinking}\\
+        &\text{it as an array you should think of them as an image, that you could access if you iterate over the (x,y) axis,}\\
+        &\text{the reason why information is easy to store this way, is cuz remember that chips are basically cables and switches}\\
+        &\text{all miniaturize to the atom scale, so arrange things in lines is more difficult cuz phisically is harder to build }\\
+        &\text{is like a book, which thing is easier to handle, a single sheet of paper like a rool of paper,}\\
+        &\text{ or a notebook where you can swtich to each page depending which thing you need. cuz if it were the roll, the}\\
+        &\text{in order to read something in the middle of the roll thing you write either you need to unroll it  or unroll it }\\
+        &\bullet\text{\textbf{\large {float4}}, this one is like a mini array of 4 items, that you can populate with floats, so prety easy.}\\
+        &\text{usually is used to represent or colors , RGBW, or position in space XYZW}\\        
+        &\bullet\text{\textbf{\large {float}}, this is a basic float, really clear and straight}\\
+        &\bullet\text{\textbf{\large {int}}, this is a integer, normally running things in integer tents to be easier. when data operations are necessary.}\\
+        &\text{}\\
+    
+        
+        \end{aligned}$$
+    
+</div>
+        
+    
+<div style = "font-size: 21px">
+    
+        <pre><code class="language-hlsl">
+        
+            PixelData vert (VertexInfo v)
+            {
+                PixelData o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                return o;
+            }
+    
+        </code></pre>
+        <!-- &\bullet\text{POSITION and SV\_POSITION, is the same as the previous TEXCOORD0, but instead for vertexes, so it usually tents to be a  }\\ -->
+    
+        $$\begin{aligned}
+        
+        &\bullet\text{This function got for only purpose in this shader, is to populate the information in the chips, withe the position of }\\
+        &\text{the vertexes, in this case we are using a plane as our main shape our canvas where to position the vertexes, so imagine a }\\
+        &\text{ square build up by two triangles. or a square build up or draw up by rectangle triangles.}\\
+        &\text{}\\
+        
+        \end{aligned}$$
+    
+    
+</div>
+        
+
+    
+
+<img  src="Img/SquareTriangles.png"  style="display: block; margin: 0 auto; width: 30%;">
+<img  src="Img/SquareTrianglesLanes.png"  style="display: block; margin: 0 auto; width: 30%;">
+
+
+
+
+
+<div style = "font-size: 21px">
+    
+        <pre><code class="language-hlsl">
+        
+            fixed4 frag (PixelData i) : SV_Target
+            {
+
+                // THIS CODE MEANS
+                // HOW TO RUN THE PIXELS OF THE SCREEN.
+                
+                fixed4 colorWhite = float4(1,1,1,1); // Color white.
+                fixed4 colorBlack = float4(0,0,0,1); // Color white.
+
+                float2 uv =  i.uv ;
+
+            
+                fixed4 col = fixed4(uv.x, uv.y , 0.0, 1.0);
+            
+                return col;
+            
+            }
+    
+        </code></pre>
+        <!-- &\bullet\text{POSITION and SV\_POSITION, is the same as the previous TEXCOORD0, but instead for vertexes, so it usually tents to be a  }\\ -->
+    
+        $$\begin{aligned}
+        
+        &\text{This function is the one where we are going spend a lot of time on , its because here is where the mathematics }\\
+        &\text{for each single mini computer happens, imagine that each single pixel got a computer on, and what you are going to do is }\\
+        &\text{use a computer over each pixel to modify it, what you are going to do is modify the pixel by doing different types of }\\
+        &\text{mathematical operations so all of the colors could change in tandem and in unisom in the way we want, }\\
+        &\text{that's exactly what we are doing, literally 3d is practically and illusion, that looks like there is something in depth}\\
+        &\text{when in reality is just colors being display in a very particular way, in unison, or unity? the way you want.}\\
+        &\bullet\text{\textbf{\large {SV\_Target}} what this means is like the vertexes flag that we use previously, is that this is }\\
+        &\text{ going to set things up for placing or position orders, but instead to set vertexes is going to set pixels.}\\
+        &\text{}\\
+        &\text{the pixels came from the structured that we set up at the beggining this structured is the one that is going to work}\\
+        &\text{as holder of the pixels, the way how the chip stored this information is on planes or more clearer, images or fields}\\
+        &\text{of transistors that are going to work as a coordinate system, (X,Y), where the information is going to be updated and }\\
+        &\text{retrived, so as its flag stated TEXCOORD0, it came in a coordinate system.}\\
+        &\text{so in the structured ~i~, and the subvariable uv, the pixels are abstracted.}\\
+        &\text{}\\
+        &\text{now is where all we been saying about mini computers, and computers inside computers start to get sense, the reason  }\\
+        &\text{of this is cuz, the thing that we are going to operate from this moment on is the pixel, from the moment the function}\\
+        &\text{ "frag" start, the operation that we are going to process from this precise instant is on the pixel, we are going to make }\\
+        &\text{operations that are going to make the pixel change its colors in a way that is very particular, a very distinctive way }\\
+        &\text{to reorder the pixel in multiple ways. that it allow us to visualize things, represent things, organize details, but overall}\\
+        &\text{change its colors to make everything got sense, give sense to the pixel is what we are doing. direction, order, cohesion}\\
+        &\text{clarity, steps, ways, paths, to behave according the representations that we want to set up for it to follow. }\\
+        &\text{}\\
+        &\text{So when we evaluate like the did in \textbf{\large{float 2 uv}} is that we are getting litteraly is the coordinates of the pixel }\\
+        &\text{we are supposed to operate, the information that this variable contain is the coordinate of the pixel that we are going to modify}\\
+        &\text{normaly this coordinates that we it set up for default came from \textbf{\large{-1 to 0}} so if we output from the function }\\
+        &\text{as it detail on we must create a \textbf{\large{fixed4}} data type, that we could use to set the colors of the pixels, we could }\\
+        &\text{use float instead but for this example we are going to use the default, which is the fixed4, whom came with }\\
+        &\text{8-bit value ranging from -2 to 2, to output a color, and how we are going to populate the color with, easy we are going to set up }\\
+        &\text{the values of color, usualy this go, from 0 to 1, for each RGB, and W for the albedo or brightness normally. }\\
+        &\text{by using the coordinates from the TEXCOORD0, that came from 0 to 1 for all the position of the pixels in the coordinate system}\\
+        &\text{in the chip.}\\
+        &\text{So if we populate the color using this information \textbf{\large {fixed4(uv.x, uv.y, 0, 1.0)}}, we are going to notice}\\
+        &\text{that the elements from the bottom left are going to be black cuz the position they are representing is the  (0,0) coordinate,}\\
+        &\text{but if instead by go to the x axis limit which would be the bottom right of the screen we are goinig to check that the  }\\
+        &\text{color is going to be red cuz the position is going to be in the corodinate system (1,0) but if we go to the right up corner (1,1)}\\
+        &\text{we are going to check that if we mix two colors red and green we are going to get yellow which is the collor that's on the }\\
+        &\text{top right corner.}\\
+        &\text{}\\
+        &\text{}\\
+
+        \end{aligned}$$
+        
+   
+</div>
+
+<img  src="Img/FirstImageShader.png"  style="display: block; margin: 0 auto; width: 30%;">
+
+
+
+
+<h1>HLSL Shader Snippet</h1>
+    <p>Rendering a simple pixel shader with Monokai styling:</p>
+
+    <pre><code class="language-hlsl">
+    struct PS_INPUT {
+    float4 Pos : SV_POSITION;
+    float2 Tex : TEXCOORD0;
+};
+
+sampler2D g_SamScene : register(s0);
+
+float4 main(PS_INPUT input) : SV_Target {
+    // Sample texture and return color
+    float4 color = tex2D(g_SamScene, input.Tex);
+    
+    // Simple grayscale conversion
+    float gray = dot(color.rgb, float3(0.3, 0.59, 0.11));
+    return float4(gray, gray, gray, color.a);
 }</code></pre>
+
+
 
 <hr>
 <div style = "font-size: 21px">
@@ -339,7 +642,6 @@ return 0;
     $$\LARGE\text{Identity \#2}$$
 </div>        
 <hr>
-
 
 <div style = "font-size: 21px">
     $$\\[5ex]$$
@@ -721,315 +1023,6 @@ _       _________ _______ __________________ _______
 \end{aligned}$$ -->
 
     
-
-
-
-<!-- 
-______   _______  _______ _________          _______ __________________          _______ 
-(  __  \ (  ____ \(  ____ )\__   __/|\     /|(  ___  )\__   __/\__   __/|\     /|(  ____ \
-| (  \  )| (    \/| (    )|   ) (   | )   ( || (   ) |   ) (      ) (   | )   ( || (    \/
-| |   ) || (__    | (____)|   | |   | |   | || (___) |   | |      | |   | |   | || (__    
-| |   | ||  __)   |     __)   | |   ( (   ) )|  ___  |   | |      | |   ( (   ) )|  __)   
-| |   ) || (      | (\ (      | |    \ \_/ / | (   ) |   | |      | |    \ \_/ / | (      
-| (__/  )| (____/\| ) \ \_____) (___  \   /  | )   ( |   | |   ___) (___  \   /  | (____/\
-(______/ (_______/|/   \__/\_______/   \_/   |/     \|   )_(   \_______/   \_/   (_______/
-
--->
-
-<hr>
-<hr>
-<h1 style="font-size: 40px;"><b> Derivative </b></h1>
-<br>
-
-<div style = "font-size: 21px">
-
-  $$\text{General Formula for Derivative}$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}$$
-  
-  $$\\[5ex]$$
-
-  </div>
-
-  <hr>
-  <div style = "font-size: 21px">
-          $$\LARGE\text{Example \#1}$$
-
-  </div>        
-  <hr>
-
-<div style = "font-size: 21px">
-  
-
-  $$\\[5ex]$$
-  
-  $$\large \boxed {\quad f(x) = x^2 \quad}$$ 
-
-  $$\\[5ex]$$
-  
-  $$f(x+h) = (x+h)^2$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \frac{(x+h)^2 - x^2}{h}$$
-
-  $$\\[5ex]$$
-  
-  $$(x+h)^2 = x^2 + 2xh + h^2$$
-
-  $$\\[5ex]$$
-  
-  $$f'(x) = \lim_{h \to 0} \frac{\color{red}{\cancel{x^2}} 
-  \color{white}{+ 2xh + h^2} \color{red}{\cancel{- x^2}}}{h}$$
-
-  $$\\[5ex]$$
-  
-  $$f'(x) = \lim_{h \to 0} \frac{2xh + h^2}{h}$$
-
-  $$\\[5ex]$$
-  
-  $$f'(x) = \lim_{h \to 0} \frac{\color{red}{\cancel{h}}
-  \color{white}{(2x + h)}}{\color{red}{\cancel{h}}}$$
-
-  $$\\[5ex]$$
-  
-  $$f'(x) = \lim_{h \to 0} (2x + h)$$
-
-  $$\\[5ex]$$
-  
-  $$f'(x) = 2x + 0$$
-
-  $$\\[5ex]$$
-
-  $$\large \boxed {\quad f'(x) = 2x \quad}$$
-
-  $$\\[5ex]$$
-
-</div> 
-
-  <img  src="Img/DerivativeX2.png"  style="display: block; margin: 0 auto; ">
-
-<hr>
-<div style = "font-size: 21px">
-  $$\large \text{Theorem \#1 }$$
-</div>
-<hr>
-
-<div style = "font-size: 21px">
-  
-  $$\\[5ex]$$
-
-  $$\large \boxed {\quad f(x) = x^n \quad}$$
-
-  $$\\[5ex]$$
-
-  $$f(x) = x^n \implies f'(x) = nx^{n-1}$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \frac{(x + h)^n - x^n}{h}$$
-
-  $$\\[5ex]$$
-
-  $$\text{Binomial Theorem}$$
-
-  $$(x + h)^n = x^n + nx^{n-1}h + \frac{n(n-1)}{2}x^{n-2}h^2 + \dots + h^n$$
-
-  $$\\[5ex]$$
-  
-  $$f'(x) = \lim_{h \to 0} \frac{\left( \color{red}{\cancel{x^n}} \color{white}{+ nx^{n-1}h + 
-  \frac{n(n-1)}{2}x^{n-2}h^2 + \dots + h^n} \right) \color{red}{\cancel{- x^n}}}{h}$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \frac{nx^{n-1}h + \frac{n(n-1)}{2}x^{n-2}h^2 + \dots + h^n}{h}$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \frac{h \left( nx^{n-1} + \frac{n(n-1)}{2}x^{n-2}h + \dots + h^{n-1} \right)}{h}$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \frac{\color{red}{\cancel{h}} \color{white}{\left( nx^{n-1} + \frac{n(n-1)}{2}x^{n-2}h + \dots + h^{n-1} \right)}}{\color{red}{\cancel{h}}}$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = \lim_{h \to 0} \left( nx^{n-1} + \frac{n(n-1)}{2}x^{n-2}h + \dots + h^{n-1} \right)$$
-
-  $$\\[5ex]$$
-
-  $$f'(x) = nx^{n-1} + 0 + 0 + \dots + 0$$
-
-  $$\\[5ex]$$
-
-  $$\large \boxed {\quad f'(x) = nx^{n-1}\quad}$$
-
-  $$\\[5ex]$$
-  
-</div>
-
-<hr>
-<div style = "font-size: 21px">
-  $$\large \text{Theorem \#2 }$$
-</div>
-<hr>
-
-<div style = "font-size: 21px">
-
-$$\\[5ex]$$
-
-$${\quad f(x) = \cos(x_1) \quad}$$
-
-$$\\[5ex]$$
-
-$$\large \boxed {f'(x) = \lim_{h \to 0} \frac{\cos(x + h) - \cos(x)}{h}}$$
-
-$$\\[5ex]$$
-
-$$\cos(x + h) = \cos(x)\cos(h) - \sin(x)\sin(h)$$
-
-$$\\[5ex]$$
-
-$$f'(x) = \lim_{h \to 0} \frac{\cos(x)\cos(h) - \cos(x) - \sin(x)\sin(h)}{h}$$
-
-$$\\[5ex]$$
-
-$$f'(x) = \lim_{h \to 0} \left[ \cos(x) \left( \frac{\cos(h) - 1}{h} \right) - \sin(x) \left( \frac{\sin(h)}{h} \right) \right]$$
-
-$$\\[5ex]$$
-
-$$\text{if, } \quad \lim_{h \to 0} \frac{\sin(h)}{h} = 1$$
-
-$$\\[5ex]$$
-
-$$\text{if, }\quad \lim_{h \to 0} \frac{\cos(h) - 1}{h} = 0$$
-
-$$\\[5ex]$$
-
-$$f'(x) = \cos(x) \cdot (0) - \sin(x) \cdot (1)$$
-
-$$\\[5ex]$$
-
-$$\boxed{f'(x) = -\sin(x)}$$
-
-$$\\[5ex]$$
-
-</div>
-
-<hr>
-<div style = "font-size: 21px">
-  $$\large \text{Theorem \#3 }$$
-</div>
-<hr>
-
-<div style = "font-size: 21px">
-    
-    $$\\[5ex]$$
-    
-    $$\large \boxed {f'(x) = \lim_{h \to 0} \frac{\sin(x + h) - \sin(x)}{h}}$$
-
-    $$\\[5ex]$$
-    
-    $$\sin(x+h) = \sin(x)\cos(h) + \cos(x)\sin(h)$$
-
-    $$\\[5ex]$$
-    
-    $$f'(x) = \lim_{h \to 0} \frac{\sin(x)\cos(h) + \cos(x)\sin(h) - \sin(x)}{h}$$
-
-    $$\\[5ex]$$
-    
-    $$f'(x) = \lim_{h \to 0} \left[ \frac{\sin(x)(\cos(h) - 1)}{h} + \frac{\cos(x)\sin(h)}{h} \right]$$
-
-    $$\\[5ex]$$
-
-    $$f'(x) = \sin(x) \cdot \lim_{h \to 0} \left( \frac{\cos(h) - 1}{h} \right) + \cos(x) \cdot \lim_{h \to 0} \left( \frac{\sin(h)}{h} \right)$$
-    
-    $$\\[5ex]$$
-
-    $$\lim_{h \to 0} \frac{\sin(h)}{h} = 1$$
-
-    $$\\[5ex]$$
-
-    $$\lim_{h \to 0} \frac{\cos(h) - 1}{h} = 0$$
-
-    $$\\[5ex]$$
-    
-    $$f'(x) = \sin(x) \cdot (0) + \cos(x) \cdot (1)$$
-    
-    $$\\[5ex]$$
-
-    $$f'(x) = \cos(x)$$
-
-    $$\\[5ex]$$
-
-    
-</div>
-
-<hr>
-<div style = "font-size: 21px">
-  $$\large \text{Theorem \#4 }$$
-</div>
-<hr>
-
-
-<div style = "font-size: 21px">
-        $$\\[5ex]$$
-    
-        $$\large \boxed {f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}}$$
-
-        $$\\[5ex]$$
-        
-        $$f'(x) = \lim_{h \to 0} \frac{e^{x+h} - e^x}{h}$$
-
-        $$\\[5ex]$$
-
-        $$e^{a+b} = e^{a} \cdot e^{b},\quad e^{x+h}$$
-
-        $$\\[5ex]$$
-        
-        $$f'(x) = \lim_{h \to 0} \frac{e^x \cdot e^h - e^x}{h}$$
-
-        $$\\[5ex]$$
-        
-        $$f'(x) = \lim_{h \to 0} \frac{e^x(e^h - 1)}{h}$$
-
-        $$\\[5ex]$$
-
-        $$f'(x) = e^x \cdot \left[ \lim_{h \to 0} \frac{e^h - 1}{h} \right]$$
-
-        $$\\[5ex]$$
-
-        $$\lim_{h \to 0} \frac{e^h - 1}{h} = 1$$
-
-        $$\\[5ex]$$
-
-        $$f'(x) = e^x \cdot (1)$$
-        
-        $$\\[5ex]$$
-        
-        $$\large \boxed {f'(x) = e^x}$$
-
-        $$\\[5ex]$$
-        
-</div>
-<br>
-<br>
-
-<hr>
-<hr>
-<h1 style="font-size: 40px;"><b> End </b></h1>
-
-<br>
-<br>
-
-
-<!-- End -->
 
 <!-- 
 _______  _        ______     _  _  _ 
