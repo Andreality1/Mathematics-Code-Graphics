@@ -1363,7 +1363,7 @@ $$\LARGE\text{Draw Cicle main Theory}$$
 
 </div>        
 <hr>
-
+<br>
   
 <div style = "font-size: 21px">
     
@@ -1443,25 +1443,22 @@ fixed4 frag (PixelData i) : SV_Target
     fixed4 colorWhite = float4(1,1,1,1); // Color white.
     fixed4 colorBlack = float4(0,0,0,1); // Color Black.
 
+    float4 col = colorBlack;    
     float2 uv =  i.uv;
-	float2 coordinateScale = (uv * 2.0)  - 1.0;
-
-    float2 coor = coordinateShade;
+	float2 coor = (uv * 2.0)  - 1.0;
 
     float2 center = float2(0.0, 0.0);
 
-    float dist = 0.5;
+    float radius = 0.5;
 
     float2 coor2 = coor - center;
-    
-    coor = float2(0.0, 0.0) ;
 
-    if(length(coor2) <= dist)
+    if(length(coor2) <= radius)
     {
-        coor.x = 1.0;
+        col.x = 1.0;
     }
 
-    col = fixed4(coor.x, 0.0 , 0.0, 1.0);
+    col = fixed4(col.x, 0.0 , 0.0, 1.0);
 
     return col;                
 }
@@ -1474,7 +1471,16 @@ fixed4 frag (PixelData i) : SV_Target
 <img  src="Img/CartesianPlaneFirstCuadrant.png"  style="display: block; margin: 0 auto; width: 40%;">
 
 <div style = "font-size: 21px">
+
+$$\begin{aligned}
+&\text{Lets set the color to the background to pure black}\\
+\end{aligned}$$
     
+<pre><code class="language-hlsl">
+    float4 col = colorBlack;    
+</code></pre>
+
+
 $$\begin{aligned}
 &\text{So lets explain the things that are happening here, which are the steps that we are following through this code.}\\
 &\text{step by step we are going to understand how mathematics and computing are being evaluated}\\
@@ -1491,7 +1497,7 @@ $$\begin{aligned}
 <pre><code class="language-hlsl">
 
     float2 uv =  i.uv;        
-    float2 coordinateScale = (uv * 2.0)  - 1.0;
+    float2 coordinateScale = (uv * 2.0) ;
 
 </code></pre>
 
@@ -1522,123 +1528,126 @@ $$\begin{aligned}
     float2 coordinateScale = (uv * 2.0)  - 1.0;
         
 </code></pre>
-<img  src="Img/CartesianPlaneBase.png"  style="display: block; margin: 0 auto; width: 40%;">
-            
 </div>
+
+<img  src="Img/CartesianPlaneBase.png"  style="display: block; margin: 0 auto; width: 40%;">
+<br>
+
+<div style = "font-size: 21px">
+
+$$\begin{aligned}
+&\text{now what we are currently seeing in the plane is the yellowrange part of the previous cartesian plane this is  }\\
+&\text{the current plane we are seeing, on our screen, the yellow part would be the define space where we are going to }\\
+&\text{output things on.}\\
+&\text{}\\
+\end{aligned}$$
+
+<pre><code class="language-hlsl">
+    float2 center = float2(0.0, 0.0);
+</code></pre>
+
+$$\begin{aligned}
+&\text{Now define the center of the circle that's going to be where the circle would be position, }\\
+&\text{in this case the origin, so that means that our circle is position at: } \\
+\\
+&\mathcal{C} = (x, y) = (0, 0) \\
+\\
+&\mathcal{C}\; \xmapsto{\text{means}} \text{stands for the position of the circle }\\
+&\text{}\\
+\end{aligned}$$
+
+</div>
+
+<div style = "font-size: 21px">
+
+<pre><code class="language-hlsl">
+    float radius = 0.5;
+</code></pre>
+
+$$\large r \implies \text{radius}$$
+
+$$\begin{aligned}
+&\text{Now in order to continue with the theory of the circle lets define the radius, which in this case is also}\\
+&\text{the same as the max distance from the center of the circle, so every point with distance to the center }\\
+&\text{less than the radius would represent that is part of the circle.}\\
+\end{aligned}$$
+
+$$\textbf{The Geometric Constraint} \\$$
+$$d \leq r \implies \sqrt{(x - h)^2 + (y - k)^2} \leq r\\$$
+
+</div>
+
+<div style = "font-size: 21px">
+    
+$$\\[7ex]\\$$
+    
+$$\begin{aligned}
+&\text{some other way to specify in code the substractions inside the root as the following}\\
+\end{aligned}$$
+
+$$ float2\; coor2  = float2((x - h)\ ,\ (y - k))$$
+    
+<pre><code class="language-hlsl">
+    float2 coor2 = coor - center;
+</code></pre>
+        
+$$coor2\; =\; \mathbf{C_2}\ =\ \mathbf{P} - \mathbf{C}\ =\ \begin{pmatrix} x - h \\ y - k \end{pmatrix}$$
+$$\\[5ex]\\$$
+$$coor2\; =\;(x - h, y - k)\ =\ (x, y) - (h, k)$$
+$$\\[5ex]\\$$
+$$coor2\; =\;\mathbf{C_2}\ =\ \mathbf{P} - \mathbf{C} $$
+
+
+<pre><code class="language-hlsl">
+if(length(coor2) <= radius)
+{
+    col.x = 1.0;
+}
+</code></pre>
+
+
+$$\begin{aligned}
+&\text{The operation that we are going to do now would be evaluate the points so they fulfill }\\
+&\text{the condition, and if the point fulfill then is when we are going to know that the point must }\\
+&\text{be colored, the condition in general mathematics terms is the next one:}\\
+\end{aligned}$$
+    
+$$d  \implies length(coor2) $$
+
+$$\\[4ex]\\$$
+
+$$\textbf{The Distance Formula} \\$$
+$$d = \sqrt{(x - h)^2 + (y - k)^2} \\$$
+
+$$\\[4ex]\\$$
+
+$$d \leq r \implies \sqrt{(x - h)^2 + (y - k)^2}\; \leq\; r\\$$
+
+$$\\[4ex]\\$$
+
+$$d \leq r \implies \sqrt{\mathbf{(C_2)^2}}\; \leq\; r \ =\ \sqrt{\mathbf{P^2} - \mathbf{C^2}}\; \leq\; r $$
+
+$$\\[4ex]\\$$
+
+$$\begin{aligned}
+&\text{So if the condition of the previous statement is meet then the output would be this colored red   }\\
+\end{aligned}$$
+
+
+<pre><code class="language-hlsl">
+    col = fixed4(col.x, 0.0 , 0.0, 1.0);
+
+    return col;                
+</code></pre>
+        
+</div>
+
 
 <br>
 
 <img  src="Img/CircleDraw.png"  style="display: block; margin: 0 auto; width: 60%;">
 
-<div style = "font-size: 21px">
-    
-        <!-- &\bullet\text{POSITION and SV\_POSITION, is the same as the previous TEXCOORD0, but instead for vertexes, so it usually tents to be a  }\\ -->
-    
-        $$\begin{aligned}
-        &\text{So in order to make a cirlce by using a equation or more clearer a logical relationship it'll be necessary to think about the }\\
-        &\text{essence of a cirlce, what the in FK Hll, is a circle, simple a cirlce is a stick that got one of its ends stuck }\\
-        &\text{into a poosition in the plane, and the other end rotates pivoting on the other whie the other is stuck. }\\  
-        &\text{}\\
-        &\text{}\\
-        &\text{}\\
-        &\text{}\\
-        &\text{}\\
-        \end{aligned}$$
-        
-        
-    
-        <pre><code class="language-hlsl">
-        
-                fixed4 frag (PixelData i) : SV_Target
-                {
-    
-                    // THIS CODE MEANS
-                    // HOW TO RUN THE PIXELS OF THE SCREEN.
-                    
-                    fixed4 colorWhite = float4(1,1,1,1); // Color white.
-                    fixed4 colorBlack = float4(0,0,0,1); // Color Black.
-    
-                    float2 uv =  i.uv ;
-    
-                
-                    fixed4 col = fixed4(uv.x, uv.y , 0.0, 1.0);
-                
-                    return col;
-                
-                }
-                
-        </code></pre>
-        
-</div>
-
-
-
-
-
-<div style = "font-size: 21px">
-
-
-
-</div>        
-
-
-
-<div style = "font-size: 21px">
-which is the best way to make this thing work correctly, learning how to modify this information correctly
-learning how to modify this values in the best way possible 
-
-
-
-</div>    
-
-
 <br>
-<br>
-<br>
-
-
-<!-- 
-_       _________ _______ __________________ _______ 
-( \      \__   __/(       )\__   __/\__   __/(  ____ \
-| (         ) (   | () () |   ) (      ) (   | (    \/
-| |         | |   | || || |   | |      | |   | (_____ 
-| |         | |   | |(_)| |   | |      | |   (_____  )
-| |         | |   | |   | |   | |      | |         ) |
-| (____/\___) (___| )   ( |___) (___   | |   /\____) |
-(_______/\_______/|/     \|\_______/   )_(   \_______)
-                                                      
--->
-
-
-<hr>
-<hr>
-<h1 style="font-size: 40px;"><b> Limits </b></h1>
-<br>
-
-
-<hr>
-<div style = "font-size: 21px">
-        $$\LARGE\text{Limits \#1}$$
-</div>        
-<hr>
-<br>
-<!-- 
-<hr>
-<p style="font-size: 30px;"><strong>1# limit</strong></p>
-<hr> -->
-
-<!-- SandwichTheoremColored -->
-    
-<!-- 
-    $$\begin{aligned}
-    &\text{\textbf{Establishing the Inequality}} \\
-    &\text{From the geometry of the unit circle, it is clear that:} \\
-    &\text{Area}_{\text{triangle 1}} < \text{Area}_{\text{sector}} < \text{Area}_{\text{triangle 2}} \\
-    &\text{Substituting the formulas derived above:} \\
-    &\frac{1}{2}\sin(h) < \frac{1}{2}h < \frac{1}{2}\tan(h) \\
-    &\text{Multiply the entire inequality by } 2 \text{ to simplify:} \\
-    &\sin(h) < h < \tan(h)
-\end{aligned}$$ -->
 
     
 
@@ -1654,20 +1663,9 @@ _______  _        ______     _  _  _
 
 -->
 
-      
 
-
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      
-      
-
-
-
+<br>
+<br>
 
 </div>
 
