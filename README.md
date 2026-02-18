@@ -1,6 +1,5 @@
-# Mathematics-Code-Graphics-EulersIdentity
+# Mathematics-Code-Graphics-Shaders
 This is a repo where you could check mathematical proof on computer science
-
 
 [Online Mathematics-Code-Shaders Website]
 (https://andreality1.github.io/Mathematics-Code-Shaders/)
